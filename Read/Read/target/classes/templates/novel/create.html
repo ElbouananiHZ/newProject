@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer un Roman</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f9f9f9;
+        }
+
+        .novel-form-card {
+            max-width: 700px;
+            margin: auto;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .form-title i {
+            margin-right: 8px;
+            color: #0d6efd;
+        }
+
+        .tag-label {
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body class="py-5">
+
+<div class="container">
+    <div class="novel-form-card">
+        <h2 class="form-title"><i class="bi bi-book-half"></i>Créer un nouveau Roman</h2>
+
+        <form th:action="@{/novels/save}" th:object="${novel}" method="post" enctype="multipart/form-data">
+            <!-- Nom -->
+            <div class="mb-3">
+                <label for="name" class="form-label">Nom <span class="text-danger">*</span></label>
+                <input type="text" th:field="*{name}" id="name" class="form-control" placeholder="Titre du roman" required>
+            </div>
+
+            <!-- Résumé -->
+            <div class="mb-3">
+                <label for="summary" class="form-label">Résumé <span class="text-danger">*</span></label>
+                <textarea th:field="*{summary}" id="summary" class="form-control" placeholder="Résumé du roman" rows="4" required></textarea>
+            </div>
+
+            <!-- Image -->
+            <div class="mb-3">
+                <label for="imageFile" class="form-label">Image de couverture</label>
+                <input type="file" name="imageFile" id="imageFile" class="form-control" accept="image/*">
+            </div>
+
+            <!-- Catégorie -->
+            <div class="mb-3">
+                <label for="category" class="form-label">Catégorie <span class="text-danger">*</span></label>
+                <select th:field="*{category}" id="category" class="form-select" required>
+                    <option disabled selected value="">-- Sélectionner une catégorie --</option>
+                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+                </select>
+            </div>
+
+            <!-- Tags -->
+            <div class="mb-3">
+                <label class="form-label">Tags</label><br>
+                <div class="form-check form-check-inline" th:each="tag, iterStat : ${tags}">
+                    <input class="form-check-input" type="checkbox"
+                           th:id="${'tag-' + iterStat.index}"
+                           th:field="*{tags}"
+                           th:value="${tag}">
+                    <label class="form-check-label tag-label" th:for="${'tag-' + iterStat.index}" th:text="${tag}"></label>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between mt-4">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Sauvegarder</button>
+                <a th:href="@{/novels}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
