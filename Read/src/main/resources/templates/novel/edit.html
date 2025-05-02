@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier le Roman</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card {
+            max-width: 720px;
+            margin: 60px auto;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            box-shadow: none;
+            transition: 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        .novel-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .btn-primary {
+            background-color: #4e73df;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #375abd;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .form-check-label {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 1rem;
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .form-check-input {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container">
+    <div class="card shadow p-4">
+        <h2 class="mb-4 text-center">✏️ Modifier le Roman</h2>
+
+        <form th:action="@{/novels/update/{id}(id=${novel.id})}" th:object="${novel}" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-control" th:field="*{name}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Résumé</label>
+                <textarea class="form-control" th:field="*{summary}" rows="4" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Catégorie</label>
+                <select class="form-select" th:field="*{category}">
+                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}">Catégorie</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Tags</label>
+                <div class="d-flex flex-wrap">
+                    <label class="form-check-label" th:each="tag : ${tags}">
+                        <input type="checkbox" class="form-check-input" th:value="${tag}" th:field="*{tags}" />
+                        <span th:text="${tag}">Tag</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Changer l'image (optionnel)</label>
+                <input type="file" name="imageFile" class="form-control">
+                <div class="mt-3">
+                    <img th:src="@{'/novels/image/' + ${novel.id}}" alt="Image du roman" class="novel-img" />
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                <a href="/novels" class="btn btn-secondary">Retour</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
