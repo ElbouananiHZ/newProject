@@ -13,7 +13,7 @@ import java.util.Set;
 public class Novel {
     @Id
     private String id;
-    
+
     private byte[] imageData;  // Image data for internal storage or retrieval
     private String name;
     private String summary;
@@ -24,7 +24,6 @@ public class Novel {
     private int totalRating = 0;
     private int ratingCount = 0;
     private Double rating;
-
     private List<Rating> ratings = new ArrayList<>();
     private List<Comment> comments = new ArrayList<>();
 
@@ -37,13 +36,14 @@ public class Novel {
         return Math.round(getAverageRating() * 10.0) / 10.0;
     }
 
+
     // Getters and Setters
     public void setRating(Double rating) {
         this.rating = rating;
     }
 
     public void setImageData(byte[] imageData) {
-        this.imageData = imageData;
+        this.imageData=imageData;
     }
 
     public byte[] getImageData() {

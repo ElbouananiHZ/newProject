@@ -10,7 +10,16 @@ public class Page {
     private String id;
     private int pageNumber;
     private String content;
-    private String novelId; // Reference to the Novel
+    private String novelId;// Reference to the Novel
+    private String Name;
+
+    public String getName() {
+        return Name;
+    }
+
+    public void setName(String pageName) {
+        this.Name = pageName;
+    }
 
     public String getId() {
         return id;

@@ -157,6 +157,10 @@
                     <a th:href="@{'/novels/detail/' + ${novel.id}}">Détail</a>
                     <a th:href="@{'/novels/edit/' + ${novel.id}}">Modifier</a>
                     <a th:href="@{'/novels/delete/' + ${novel.id}}" onclick="return confirm('Confirmer la suppression ?')">Supprimer</a>
+                    <!-- Added Add Page button -->
+                    <a th:href="@{/api/novels/pages/add-by-name(novelName=${novel.name})}" class="btn btn-add-page w-100 mt-3">
+                        ➕ Ajouter une page
+                    </a>
                 </div>
             </div>
         </div>

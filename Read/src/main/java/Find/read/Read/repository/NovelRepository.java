@@ -8,4 +8,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface NovelRepository extends MongoRepository<Novel, String> {}
+public interface NovelRepository extends MongoRepository<Novel, String> {Novel findByName(String name);
+}

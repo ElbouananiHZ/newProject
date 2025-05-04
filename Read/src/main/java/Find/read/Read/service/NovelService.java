@@ -65,6 +65,9 @@ public class NovelService {
 
         novelRepository.save(novel);
     }
+    public Novel getNovelByName(String name) {
+        return novelRepository.findByName(name); // You'll need to define this
+    }
 
     // === Comments ===
 
@@ -79,5 +82,6 @@ public class NovelService {
 
         novel.getComments().add(comment);
         novelRepository.save(novel);
+
     }
 }
