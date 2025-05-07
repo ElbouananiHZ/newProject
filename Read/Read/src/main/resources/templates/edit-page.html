@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Page - [[${novelName}]]</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Optional: link your CSS -->
+</head>
+<body>
+<h1>Edit Page - "<span th:text="${novelName}"></span>"</h1>
+
+<form th:action="@{|/novels/${novelId}/pages/${page.pageNumber}/edit|}" th:object="${page}" method="post">
+    <input type="hidden" th:field="*{id}" />
+    <input type="hidden" th:field="*{novelId}" />
+    <input type="hidden" th:field="*{pageNumber}" />
+
+    <div>
+        <label for="name">Page Title:</label>
+        <input type="text" id="name" th:field="*{name}" required />
+    </div>
+
+    <div>
+        <label for="content">Content:</label><br>
+        <textarea id="content" th:field="*{content}" rows="20" cols="80" required></textarea>
+    </div>
+
+    <div>
+        <button type="submit">Update Page</button>
+        <a th:href="@{|/novels/${novelId}/pages/${page.pageNumber}|}">Cancel</a>
+    </div>
+</form>
+</body>
+</html>

@@ -1,83 +1,106 @@
 package Find.read.Read.service;
 
-import Find.read.Read.models.Comment;
 import Find.read.Read.models.Novel;
-import Find.read.Read.models.Rating;
+import Find.read.Read.models.Page;
 import Find.read.Read.repository.NovelRepository;
+import Find.read.Read.repository.PageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class NovelService {
 
     private final NovelRepository novelRepository;
+    private final PageRepository pageRepository;
 
     @Autowired
-    public NovelService(NovelRepository novelRepository) {
+    public NovelService(NovelRepository novelRepository, PageRepository pageRepository) {
         this.novelRepository = novelRepository;
-    }
-
-    // === CRUD ===
-
-    public List<Novel> getAllNovels() {
-        return novelRepository.findAll();
+        this.pageRepository = pageRepository;
     }
 
     public Optional<Novel> getNovelById(String id) {
         return novelRepository.findById(id);
     }
 
-    public Novel saveNovel(Novel novel) {
-        return novelRepository.save(novel);
+    public List<Novel> getAllNovels() {
+        return novelRepository.findAll();
+    }
+
+    public void saveNovel(Novel novel) {
+        novelRepository.save(novel);
     }
 
     public void deleteNovel(String id) {
         novelRepository.deleteById(id);
     }
 
-    // === Rating ===
-
     public void rateNovel(String novelId, String userId, int score) {
-        Novel novel = novelRepository.findById(novelId)
-                .orElseThrow(() -> new RuntimeException("Novel not found with ID: " + novelId));
-
-        Rating existing = novel.getRatings().stream()
-                .filter(r -> r.getUserId().equals(userId))
-                .findFirst()
-                .orElse(null);
-
-        if (existing != null) {
-            novel.setTotalRating(novel.getTotalRating() - existing.getScore() + score);
-            existing.setScore(score);
-        } else {
-            Rating rating = new Rating();
-            rating.setUserId(userId);
-            rating.setScore(score);
-            novel.getRatings().add(rating);
-
-            novel.setTotalRating(novel.getTotalRating() + score);
-            novel.setRatingCount(novel.getRatingCount() + 1);
-        }
-
-        novelRepository.save(novel);
+        // Logic for saving user rating for the novel
+        Optional<Novel> novel = novelRepository.findById(novelId);
+        novel.ifPresent(n -> {
+            // Save rating logic here
+        });
     }
-
-    // === Comments ===
 
     public void addComment(String novelId, String userId, String content) {
+        // Logic for adding a comment for the novel
+        Optional<Novel> novel = novelRepository.findById(novelId);
+        novel.ifPresent(n -> {
+            // Save comment logic here
+        });
+    }
+
+    public void savePage(Page page) {
+        pageRepository.save(page);
+    }
+
+    public void updatePageContent(String novelId, int pageNumber, String content) {
+        Optional<Page> page = pageRepository.findByNovelIdAndPageNumber(novelId, pageNumber);
+        page.ifPresent(p -> {
+            p.setContent(content);
+            pageRepository.save(p);
+        });
+    }
+
+    public void deletePageAndRenumber(String novelId, int pageNumber) {
+        System.out.println("Attempting to delete page " + pageNumber + " from novel " + novelId);
+
+        Optional<Page> pageToDelete = pageRepository.findByNovelIdAndPageNumber(novelId, pageNumber);
+        if (pageToDelete.isPresent()) {
+            System.out.println("Page found, deleting...");
+            pageRepository.delete(pageToDelete.get());
+
+            List<Page> pages = pageRepository.findByNovelId(novelId);
+            System.out.println("Found " + pages.size() + " remaining pages to renumber");
+
+            for (Page page : pages) {
+                if (page.getPageNumber() > pageNumber) {
+                    System.out.println("Renumbering page " + page.getPageNumber() + " to " + (page.getPageNumber() - 1));
+                    page.setPageNumber(page.getPageNumber() - 1);
+                    pageRepository.save(page);
+                }
+            }
+        } else {
+            System.out.println("Page not found for deletion");
+        }
+    }
+    // In NovelService.java
+    @Transactional
+    public void removePageFromNovel(String novelId, int pageNumber) {
         Novel novel = novelRepository.findById(novelId)
-                .orElseThrow(() -> new RuntimeException("Novel not found with ID: " + novelId));
+                .orElseThrow(() -> new RuntimeException("Novel not found"));
 
-        Comment comment = new Comment();
-        comment.setUserId(userId);
-        comment.setContent(content);
-        comment.setCreatedAt(LocalDateTime.now());
+        System.out.println("Before removal: " + novel.getPages().size() + " pages");
 
-        novel.getComments().add(comment);
+        // Remove page reference
+        novel.getPages().removeIf(p -> p.getPageNumber() == pageNumber);
+
+        System.out.println("After removal: " + novel.getPages().size() + " pages");
         novelRepository.save(novel);
     }
+
 }

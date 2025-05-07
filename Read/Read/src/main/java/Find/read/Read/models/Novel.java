@@ -3,6 +3,7 @@ package Find.read.Read.models;
 import Find.read.Read.enums.NovelCategory;
 import Find.read.Read.enums.NovelTag;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -13,7 +14,29 @@ import java.util.Set;
 public class Novel {
     @Id
     private String id;
-    
+    @DBRef(lazy = true)
+    private List<Page> pages = new ArrayList<>();
+
+
+
+
+
+
+     // <-- Make sure this is here
+
+
+
+
+
+
+        public List<Page> getPages() {
+            return pages;
+        }
+
+        public void setPages(List<Page> pages) {
+            this.pages = pages;
+        }
+
     private byte[] imageData;  // Image data for internal storage or retrieval
     private String name;
     private String summary;

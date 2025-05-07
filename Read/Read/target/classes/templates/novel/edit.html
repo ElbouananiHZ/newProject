@@ -8,29 +8,36 @@
         body {
             background-color: #f5f7fa;
             font-family: 'Segoe UI', sans-serif;
+            padding-top: 40px;
+            padding-bottom: 40px;
         }
 
-        .card {
+        .edit-card {
             max-width: 720px;
-            margin: 60px auto;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            margin: 0 auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
-        .card h2 {
-            font-weight: 700;
+        .edit-title {
+            font-weight: 600;
             color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
         .form-label {
             font-weight: 600;
-            color: #2d3748;
+            color: #495057;
+            margin-bottom: 8px;
         }
 
         .form-control, .form-select {
-            border-radius: 0.5rem;
-            box-shadow: none;
-            transition: 0.2s;
+            border-radius: 6px;
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
         }
 
         .form-control:focus, .form-select:focus {
@@ -42,46 +49,38 @@
             width: 100%;
             height: 300px;
             object-fit: cover;
-            border-radius: 0.5rem;
+            border-radius: 6px;
             border: 1px solid #dee2e6;
+            margin-top: 15px;
         }
 
-        .btn-primary {
+        .btn-submit {
             background-color: #4e73df;
             border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
         }
 
-        .btn-primary:hover {
-            background-color: #375abd;
+        .btn-submit:hover {
+            background-color: #3a5ab5;
         }
 
-        .btn-secondary {
+        .btn-cancel {
             background-color: #6c757d;
             border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
         }
 
-        .btn-secondary:hover {
+        .btn-cancel:hover {
             background-color: #5a6268;
-        }
-
-        .form-check-label {
-            display: inline-flex;
-            align-items: center;
-            margin-right: 1rem;
-            margin-bottom: 0.5rem;
-            color: #495057;
-        }
-
-        .form-check-input {
-            margin-right: 0.5rem;
         }
     </style>
 </head>
-<body class="bg-light">
-
+<body>
 <div class="container">
-    <div class="card shadow p-4">
-        <h2 class="mb-4 text-center">✏️ Modifier le Roman</h2>
+    <div class="edit-card">
+        <h2 class="edit-title">✏️ Modifier le Roman</h2>
 
         <form th:action="@{/novels/update/{id}(id=${novel.id})}" th:object="${novel}" method="post" enctype="multipart/form-data">
             <div class="mb-3">
@@ -111,7 +110,7 @@
                 </div>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <label class="form-label">Changer l'image (optionnel)</label>
                 <input type="file" name="imageFile" class="form-control">
                 <div class="mt-3">
@@ -119,13 +118,12 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between mt-4">
-                <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
-                <a href="/novels" class="btn btn-secondary">Retour</a>
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-submit text-white">💾 Sauvegarder</button>
+                <a href="/novels" class="btn btn-cancel text-white">Retour</a>
             </div>
         </form>
     </div>
 </div>
-
 </body>
 </html>

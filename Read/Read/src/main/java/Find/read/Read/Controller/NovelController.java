@@ -3,7 +3,6 @@ package Find.read.Read.Controller;
 import Find.read.Read.enums.NovelCategory;
 import Find.read.Read.enums.NovelTag;
 import Find.read.Read.models.Novel;
-import Find.read.Read.repository.NovelRepository;
 import Find.read.Read.service.NovelService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 @RequestMapping("/novels")
@@ -26,12 +25,10 @@ public class NovelController {
         this.novelService = novelService;
     }
 
-    @Autowired
-    private NovelRepository novelRepo;
-
     @GetMapping("/novels/{id}")
     public String showNovel(@PathVariable String id, Model model) {
-        Novel novel = novelRepo.findById(id).orElseThrow();
+        Novel novel = novelService.getNovelById(id)
+                .orElseThrow(() -> new RuntimeException("Novel not found"));
         model.addAttribute("novel", novel);
         return "novel"; // novel.html
     }
@@ -51,8 +48,7 @@ public class NovelController {
     }
 
     @PostMapping("/save")
-    public String saveNovel(@ModelAttribute Novel novel,
-                            @RequestParam("imageFile") MultipartFile imageFile) {
+    public String saveNovel(@ModelAttribute Novel novel, @RequestParam("imageFile") MultipartFile imageFile) {
         if (novel.getId() == null || novel.getId().isEmpty()) {
             novel.setId(UUID.randomUUID().toString());
         }
@@ -73,7 +69,7 @@ public class NovelController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model) {
         Novel novel = novelService.getNovelById(id)
-                .orElseThrow(() -> new RuntimeException("Roman introuvable avec l'ID : " + id));
+                .orElseThrow(() -> new RuntimeException("Novel not found"));
         model.addAttribute("novel", novel);
         model.addAttribute("categories", NovelCategory.values());
         model.addAttribute("tags", NovelTag.values());
@@ -81,13 +77,9 @@ public class NovelController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateNovel(@PathVariable String id,
-                              @ModelAttribute Novel updatedNovel,
-                              @RequestParam("imageFile") MultipartFile imageFile) {
-
+    public String updateNovel(@PathVariable String id, @ModelAttribute Novel updatedNovel, @RequestParam("imageFile") MultipartFile imageFile) {
         Novel existingNovel = novelService.getNovelById(id)
-                .orElseThrow(() -> new RuntimeException("Roman introuvable avec l'ID : " + id));
-
+                .orElseThrow(() -> new RuntimeException("Novel not found"));
         updatedNovel.setId(id);
 
         if (!imageFile.isEmpty()) {
@@ -107,7 +99,7 @@ public class NovelController {
     @GetMapping("/detail/{id}")
     public String showNovelDetail(@PathVariable String id, Model model) {
         Novel novel = novelService.getNovelById(id)
-                .orElseThrow(() -> new RuntimeException("Roman introuvable avec l'ID : " + id));
+                .orElseThrow(() -> new RuntimeException("Novel not found"));
         model.addAttribute("novel", novel);
         return "novel/detail";
     }
@@ -118,19 +110,8 @@ public class NovelController {
         return "redirect:/novels";
     }
 
-    @GetMapping("/image/{id}")
-    @ResponseBody
-    public byte[] getImage(@PathVariable String id) {
-        return novelService.getNovelById(id)
-                .map(Novel::getImageData)
-                .orElse(null);
-    }
-
-    // ✅ Méthode pour noter un roman
     @PostMapping("/{id}/rate")
-    public String rateNovel(@PathVariable String id,
-                            @RequestParam int score,
-                            HttpSession session) {
+    public String rateNovel(@PathVariable String id, @RequestParam int score, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId != null) {
             novelService.rateNovel(id, userId, score);
@@ -138,11 +119,17 @@ public class NovelController {
         return "redirect:/novels/detail/" + id;
     }
 
-    // ✅ Méthode pour commenter un roman
+    @GetMapping("/image/{id}")
+    @ResponseBody
+    public byte[] serveImage(@PathVariable String id) {
+        Novel novel = novelService.getNovelById(id)
+                .orElseThrow(() -> new RuntimeException("Novel not found"));
+
+        return novel.getImageData();  // directly return the image bytes
+    }
+
     @PostMapping("/{id}/comment")
-    public String commentNovel(@PathVariable String id,
-                               @RequestParam String content,
-                               HttpSession session) {
+    public String commentNovel(@PathVariable String id, @RequestParam String content, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId != null) {
             novelService.addComment(id, userId, content);
