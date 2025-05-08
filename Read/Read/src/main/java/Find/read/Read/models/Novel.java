@@ -16,26 +16,29 @@ public class Novel {
     private String id;
     @DBRef(lazy = true)
     private List<Page> pages = new ArrayList<>();
+    private String authorId;
+    // <-- Make sure this is here
 
 
+    public String getAuthorId() {
+        return authorId;
+    }
 
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
+    }
 
+    public Double getRating() {
+        return rating;
+    }
 
+    public List<Page> getPages() {
+        return pages;
+    }
 
-     // <-- Make sure this is here
-
-
-
-
-
-
-        public List<Page> getPages() {
-            return pages;
-        }
-
-        public void setPages(List<Page> pages) {
-            this.pages = pages;
-        }
+    public void setPages(List<Page> pages) {
+        this.pages = pages;
+    }
 
     private byte[] imageData;  // Image data for internal storage or retrieval
     private String name;

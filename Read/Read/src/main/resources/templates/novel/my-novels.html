@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Novels</title>
+    <!-- Add your CSS links here -->
+</head>
+<body>
+<h1>My Novels</h1>
+<a th:href="@{/novels/new}">Add New Novel</a>
+
+<div th:if="${novels.empty}">
+    <p>You haven't added any novels yet.</p>
+</div>
+
+<div th:unless="${novels.empty}">
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="novel : ${novels}">
+            <td>
+                <a th:href="@{/novels/{id}(id=${novel.id})}"
+                   th:text="${novel.title}"></a>
+            </td>
+            <td>
+                <a th:href="@{/novels/edit/{id}(id=${novel.id})}">Edit</a>
+                <a th:href="@{/novels/delete/{id}(id=${novel.id})}"
+                   onclick="return confirm('Are you sure?')">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

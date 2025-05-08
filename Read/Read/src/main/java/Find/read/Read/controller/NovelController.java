@@ -1,8 +1,9 @@
-package Find.read.Read.Controller;
+package Find.read.Read.controller;
 
 import Find.read.Read.enums.NovelCategory;
 import Find.read.Read.enums.NovelTag;
 import Find.read.Read.models.Novel;
+import Find.read.Read.repository.NovelRepository;
 import Find.read.Read.service.NovelService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +19,52 @@ import java.util.*;
 @RequestMapping("/novels")
 public class NovelController {
 
+    private final NovelRepository novelRepository;
     private final NovelService novelService;
 
     @Autowired
-    public NovelController(NovelService novelService) {
+    public NovelController(NovelRepository novelRepository, NovelService novelService) {
+        this.novelRepository = novelRepository;
         this.novelService = novelService;
     }
 
-    @GetMapping("/novels/{id}")
+    private boolean isLoggedIn(HttpSession session) {
+        return session.getAttribute("userId") != null;
+    }
+
+    private boolean isOwner(HttpSession session, String novelId) {
+        if (!isLoggedIn(session)) {
+            return false;
+        }
+        String userId = (String) session.getAttribute("userId");
+        return novelService.getNovelById(novelId)
+                .map(novel -> novel.getAuthorId().equals(userId))
+                .orElse(false);
+    }
+
+    @GetMapping("/unauthorized")
+    public String unauthorizedPage() {
+        return "unauthorized";
+    }
+
+    @GetMapping("/my-novels")
+    public String showUserNovels(Model model, HttpSession session) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/login";
+        }
+
+        String userId = (String) session.getAttribute("userId");
+        List<Novel> userNovels = novelService.getNovelsByAuthorId(userId);
+        model.addAttribute("novels", userNovels);
+        return "novel/my-novels"; // New template for user's novels
+    }
+
+    @GetMapping("/{id}")
     public String showNovel(@PathVariable String id, Model model) {
         Novel novel = novelService.getNovelById(id)
                 .orElseThrow(() -> new RuntimeException("Novel not found"));
         model.addAttribute("novel", novel);
-        return "novel"; // novel.html
+        return "novel/detail";
     }
 
     @GetMapping
@@ -40,7 +74,11 @@ public class NovelController {
     }
 
     @GetMapping("/new")
-    public String showCreateForm(Model model) {
+    public String showCreateForm(Model model, HttpSession session) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/login";
+        }
+
         model.addAttribute("novel", new Novel());
         model.addAttribute("categories", NovelCategory.values());
         model.addAttribute("tags", NovelTag.values());
@@ -48,10 +86,16 @@ public class NovelController {
     }
 
     @PostMapping("/save")
-    public String saveNovel(@ModelAttribute Novel novel, @RequestParam("imageFile") MultipartFile imageFile) {
-        if (novel.getId() == null || novel.getId().isEmpty()) {
-            novel.setId(UUID.randomUUID().toString());
+    public String saveNovel(@ModelAttribute Novel novel,
+                            @RequestParam("imageFile") MultipartFile imageFile,
+                            HttpSession session) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/login";
         }
+
+        String userId = (String) session.getAttribute("userId");
+        novel.setAuthorId(userId);
+        novel.setId(UUID.randomUUID().toString());
 
         if (!imageFile.isEmpty()) {
             try {
@@ -67,7 +111,11 @@ public class NovelController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable String id, Model model) {
+    public String showEditForm(@PathVariable String id, Model model, HttpSession session) {
+        if (!isOwner(session, id)) {
+            return "redirect:/novels/unauthorized"; // Redirect if not the owner
+        }
+
         Novel novel = novelService.getNovelById(id)
                 .orElseThrow(() -> new RuntimeException("Novel not found"));
         model.addAttribute("novel", novel);
@@ -77,9 +125,19 @@ public class NovelController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateNovel(@PathVariable String id, @ModelAttribute Novel updatedNovel, @RequestParam("imageFile") MultipartFile imageFile) {
+    public String updateNovel(@PathVariable String id,
+                              @ModelAttribute Novel updatedNovel,
+                              @RequestParam("imageFile") MultipartFile imageFile,
+                              HttpSession session) {
+        if (!isOwner(session, id)) {
+            return "redirect:/novels/unauthorized"; // Redirect if not the owner
+        }
+
         Novel existingNovel = novelService.getNovelById(id)
                 .orElseThrow(() -> new RuntimeException("Novel not found"));
+
+        // Preserve author ID
+        updatedNovel.setAuthorId(existingNovel.getAuthorId());
         updatedNovel.setId(id);
 
         if (!imageFile.isEmpty()) {
@@ -104,10 +162,24 @@ public class NovelController {
         return "novel/detail";
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteNovel(@PathVariable String id) {
-        novelService.deleteNovel(id);
-        return "redirect:/novels";
+    @PostMapping("/delete/{id}")
+    public String deleteNovel(@PathVariable String id, HttpSession session) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/login";
+        }
+
+        Optional<Novel> novel = novelService.getNovelById(id);
+        if (novel.isPresent()) {
+            // Ensure the logged-in user is the owner of the novel
+            if (isOwner(session, id)) {
+                novelService.deleteNovel(id); // Perform the delete operation
+                return "redirect:/novels"; // Redirect to the list of novels after deletion
+            } else {
+                return "redirect:/novels/unauthorized";
+            }
+        } else {
+            throw new RuntimeException("Novel not found");
+        }
     }
 
     @PostMapping("/{id}/rate")
@@ -125,11 +197,13 @@ public class NovelController {
         Novel novel = novelService.getNovelById(id)
                 .orElseThrow(() -> new RuntimeException("Novel not found"));
 
-        return novel.getImageData();  // directly return the image bytes
+        return novel.getImageData();
     }
 
     @PostMapping("/{id}/comment")
-    public String commentNovel(@PathVariable String id, @RequestParam String content, HttpSession session) {
+    public String commentNovel(@PathVariable String id,
+                               @RequestParam String content,
+                               HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId != null) {
             novelService.addComment(id, userId, content);

@@ -88,6 +88,9 @@ public class NovelService {
             System.out.println("Page not found for deletion");
         }
     }
+    public List<Novel> getNovelsByAuthorId(String authorId) {
+        return novelRepository.findByAuthorId(authorId);
+    }
     // In NovelService.java
     @Transactional
     public void removePageFromNovel(String novelId, int pageNumber) {

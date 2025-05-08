@@ -61,11 +61,15 @@
 <body>
 
 <div class="main-container">
+    <li class="nav-item">
+        <a class="nav-link" th:href="@{/profile}" th:if="${isAuthenticated}">My Profile</a>
+    </li>
     <h1>📖 Bienvenue sur l'application de gestion des romans</h1>
     <p>Gérez vos romans favoris : ajoutez, modifiez, explorez et organisez vos lectures par catégories.</p>
     <div class="mt-4">
         <a href="/novels" class="btn btn-primary me-3">Voir tous les romans</a>
         <a href="/novels/new" class="btn btn-success">➕ Ajouter un nouveau roman</a>
+        <a href="/admin/login" class="btn btn-info mt-3">🔑 Se connecter en tant qu'administrateur</a> <!-- Added login button -->
     </div>
 </div>
 

@@ -13,4 +13,5 @@ public interface NovelRepository extends MongoRepository<Novel, String> {
     List<Novel> findByNameContainingIgnoreCase(String name);
     List<Novel> findByCategory(String category);
     List<Novel> findByTagsIn(List<String> tags);
+    List<Novel> findByAuthorId(String authorId);
 }
