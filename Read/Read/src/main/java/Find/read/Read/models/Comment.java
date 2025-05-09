@@ -1,23 +1,52 @@
 package Find.read.Read.models;
 
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDateTime;
+import java.util.Date;
 
+@Document(collection = "comments")
 public class Comment {
+    @Id
+    private String id;
+    private String novelId;
     private String userId;
+    private String username;
     private String content;
-    private int rating;  // Add a rating field (e.g., 1-5)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    // Constructors
-    public Comment() {}
-
-    public Comment(String userId, String content, int rating) {
-        this.userId = userId;
-        this.content = content;
-        this.rating = rating;
+    public String getUsername() {
+        return username;
     }
 
-    // Getters and setters
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getNovelId() {
+        return novelId;
+    }
+
+    public void setNovelId(String novelId) {
+        this.novelId = novelId;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -34,22 +63,6 @@ public class Comment {
         this.content = content;
     }
 
-    public int getRating() {
-        return rating;
-    }
 
-    public void setRating(int rating) {
-        if (rating < 1 || rating > 5) {
-            throw new IllegalArgumentException("Rating should be between 1 and 5");
-        }
-        this.rating = rating;
-    }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }

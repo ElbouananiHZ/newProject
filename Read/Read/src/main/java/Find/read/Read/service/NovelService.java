@@ -1,9 +1,12 @@
 package Find.read.Read.service;
 
+
 import Find.read.Read.models.Novel;
 import Find.read.Read.models.Page;
+import Find.read.Read.models.Rating;
 import Find.read.Read.repository.NovelRepository;
 import Find.read.Read.repository.PageRepository;
+import Find.read.Read.repository.RatingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,14 +15,17 @@ import java.util.*;
 
 @Service
 public class NovelService {
-
+    @Autowired
+    private RatingRepository ratingRepository;
     private final NovelRepository novelRepository;
     private final PageRepository pageRepository;
+
 
     @Autowired
     public NovelService(NovelRepository novelRepository, PageRepository pageRepository) {
         this.novelRepository = novelRepository;
         this.pageRepository = pageRepository;
+
     }
 
     public Optional<Novel> getNovelById(String id) {
@@ -38,21 +44,10 @@ public class NovelService {
         novelRepository.deleteById(id);
     }
 
-    public void rateNovel(String novelId, String userId, int score) {
-        // Logic for saving user rating for the novel
-        Optional<Novel> novel = novelRepository.findById(novelId);
-        novel.ifPresent(n -> {
-            // Save rating logic here
-        });
-    }
 
-    public void addComment(String novelId, String userId, String content) {
-        // Logic for adding a comment for the novel
-        Optional<Novel> novel = novelRepository.findById(novelId);
-        novel.ifPresent(n -> {
-            // Save comment logic here
-        });
-    }
+
+
+
 
     public void savePage(Page page) {
         pageRepository.save(page);
@@ -88,10 +83,11 @@ public class NovelService {
             System.out.println("Page not found for deletion");
         }
     }
+
     public List<Novel> getNovelsByAuthorId(String authorId) {
         return novelRepository.findByAuthorId(authorId);
     }
-    // In NovelService.java
+
     @Transactional
     public void removePageFromNovel(String novelId, int pageNumber) {
         Novel novel = novelRepository.findById(novelId)
@@ -103,6 +99,17 @@ public class NovelService {
         novel.getPages().removeIf(p -> p.getPageNumber() == pageNumber);
 
         System.out.println("After removal: " + novel.getPages().size() + " pages");
+        novelRepository.save(novel);
+    }
+    public void updateAverageRating(String novelId) {
+        List<Rating> ratings = ratingRepository.findByNovelId(novelId);
+        double avg = ratings.stream().mapToInt(Rating::getRating).average().orElse(0.0);
+
+        Novel novel = novelRepository.findById(novelId).orElseThrow();
+        novel.setAverageRating(avg);
+        novel.setRatingCount(ratings.size());
+        novel.setTotalRating(ratings.stream().mapToInt(Rating::getRating).sum());
+
         novelRepository.save(novel);
     }
 

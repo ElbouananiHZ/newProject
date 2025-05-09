@@ -1,28 +1,23 @@
 package Find.read.Read.models;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+// Rating.java
+@Document(collection = "ratings")
 public class Rating {
-    private String userId;
+    @Id
+    private String id;
     private String novelId;
-    private int rating;  // Add a rating field (e.g., 1-5)
-    private String ratingContent;  // Optional field for a textual review
+    private String userId;
+    private int rating; // 1–5
 
-    // Constructors
-
-
-    public Rating(String userId, String novelId, int rating, String ratingContent) {
-        this.userId = userId;
-        this.novelId = novelId;
-        this.rating = rating;
-        this.ratingContent = ratingContent;
+    public String getId() {
+        return id;
     }
 
-    // Getters and setters
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNovelId() {
@@ -33,23 +28,19 @@ public class Rating {
         this.novelId = novelId;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public int getRating() {
         return rating;
     }
 
     public void setRating(int rating) {
-        if (rating < 1 || rating > 5) {
-            throw new IllegalArgumentException("Rating should be between 1 and 5");
-        }
         this.rating = rating;
     }
-
-    public String getRatingContent() {
-        return ratingContent;
-    }
-
-    public void setRatingContent(String reviewContent) {
-        this.ratingContent = reviewContent;
-    }
 }
-

@@ -50,14 +50,20 @@ public class Novel {
     private int totalRating = 0;
     private int ratingCount = 0;
     private Double rating;
+    private double averageRating; // Field for average rating
 
-    private List<Rating> ratings = new ArrayList<>();
-    private List<Comment> comments = new ArrayList<>();
+    // Constructors, getters, setters...
+
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(double averageRating) {
+        this.averageRating = averageRating;
+    }
 
     // Method for calculating the average rating
-    public double getAverageRating() {
-        return ratingCount == 0 ? 0.0 : (double) totalRating / ratingCount;
-    }
+
 
     public double getAverageRatingRounded() {
         return Math.round(getAverageRating() * 10.0) / 10.0;
@@ -96,21 +102,7 @@ public class Novel {
         this.ratingCount = ratingCount;
     }
 
-    public List<Comment> getComments() {
-        return comments;
-    }
 
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public List<Rating> getRatings() {
-        return ratings;
-    }
-
-    public void setRatings(List<Rating> ratings) {
-        this.ratings = ratings;
-    }
 
     public String getImageName() {
         return imageName;
