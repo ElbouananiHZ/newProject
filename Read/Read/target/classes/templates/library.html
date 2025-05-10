@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Ma Bibliothèque</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .auth-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .novel-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .novel-card {
+            width: 18rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        .novel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .novel-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .novel-info {
+            padding: 15px;
+        }
+        .novel-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .category {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .rating {
+            margin-bottom: 10px;
+        }
+        .dropdown-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .dropdown-actions a {
+            color: #0d6efd;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .dropdown-actions a:hover {
+            text-decoration: underline;
+        }
+        .empty-library {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .remove-btn {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<header class="toolbar">
+    <div>
+        <a href="/novels/new" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Ajouter un Roman
+        </a>
+        <a href="/" class="btn btn-secondary">
+            <i class="bi bi-house"></i> Accueil
+        </a>
+        <a href="/novels" class="btn btn-outline-primary">
+            <i class="bi bi-book"></i> Tous les Romans
+        </a>
+    </div>
+    <div class="auth-section">
+        <a href="/auth/login" class="btn btn-outline-primary" th:unless="${isAuthenticated}">
+            <i class="bi bi-box-arrow-in-right"></i> Connexion
+        </a>
+        <a href="/auth/signup" class="btn btn-outline-secondary" th:unless="${isAuthenticated}">
+            <i class="bi bi-person-plus"></i> Inscription
+        </a>
+
+        <div sec:authorize="isAuthenticated()">
+            <a href="/profile" class="btn btn-outline-success">Profil</a>
+            <form action="/logout" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-outline-danger">Déconnexion</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <h2 class="text-center mt-4 mb-4">Ma Bibliothèque</h2>
+
+    <div th:if="${novels.empty}">
+        <div class="empty-library">
+            <i class="bi bi-bookmark-x" style="font-size: 3rem; color: #6c757d;"></i>
+            <h3 class="mt-3">Votre bibliothèque est vide</h3>
+            <p class="text-muted">Ajoutez des romans à votre bibliothèque pour les retrouver facilement</p>
+            <a href="/novels" class="btn btn-primary mt-3">
+                <i class="bi bi-book"></i> Explorer les romans
+            </a>
+        </div>
+    </div>
+
+    <div class="novel-row" th:unless="${novels.empty}">
+        <div class="novel-card" th:each="novel : ${novels}" th:attr="data-id=${novel.id}">
+            <img th:src="@{'/novels/image/' + ${novel.id}}" th:alt="${novel.name}" class="novel-image">
+            <div class="novel-info">
+                <p class="novel-title" th:text="${novel.name}">Nom du Roman</p>
+                <div class="category" th:text="${novel.category}">Catégorie</div>
+
+                <!-- Remove from Library Button -->
+                <form th:action="@{'/library/remove/' + ${novel.id}}" method="post">
+                    <button type="submit" class="btn btn-outline-danger remove-btn">
+                        <i class="bi bi-bookmark-dash"></i> Retirer
+                    </button>
+                </form>
+
+                <div class="rating text-danger">
+                    <i class="bi bi-star-fill"></i> <span th:text="${novel.averageRatingRounded}">4.5</span>
+                </div>
+                <div class="dropdown-actions">
+                    <a th:href="@{'/novels/detail/' + ${novel.id}}">
+                        <i class="bi bi-info-circle"></i> Détails
+                    </a>
+                    <a th:href="@{'/novels/edit/' + ${novel.id}}" th:if="${isAuthenticated}">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Highlight novel card on click
+        document.querySelectorAll('.novel-card').forEach(card => {
+            card.addEventListener('click', e => {
+                if (e.target.tagName !== 'A') {
+                    document.querySelectorAll('.novel-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                }
+            });
+        });
+
+        // Remove highlight when clicking outside
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.novel-card')) {
+                document.querySelectorAll('.novel-card').forEach(c => c.classList.remove('active'));
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

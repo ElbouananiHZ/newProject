@@ -8,7 +8,9 @@ import Find.read.Read.models.Rating;
 import Find.read.Read.repository.CommentRepository;
 import Find.read.Read.repository.NovelRepository;
 import Find.read.Read.repository.RatingRepository;
+import Find.read.Read.service.CommentService;
 import Find.read.Read.service.NovelService;
+import Find.read.Read.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,8 @@ import java.util.*;
 @Controller
 @RequestMapping("/novels")
 public class NovelController {
+    @Autowired
+    private UserService userService;  // Add this with your other autowired dependencies
     @Autowired
     private CommentRepository commentRepository;
     @Autowired
@@ -60,7 +64,7 @@ public class NovelController {
     @GetMapping("/my-novels")
     public String showUserNovels(Model model, HttpSession session) {
         if (!isLoggedIn(session)) {
-            return "redirect:/login";
+            return "redirect:/auth/login";
         }
 
         String userId = (String) session.getAttribute("userId");
@@ -80,13 +84,14 @@ public class NovelController {
     @GetMapping
     public String listNovels(Model model) {
         model.addAttribute("novels", novelService.getAllNovels());
+
         return "novel/list";
     }
 
     @GetMapping("/new")
     public String showCreateForm(Model model, HttpSession session) {
         if (!isLoggedIn(session)) {
-            return "redirect:/login";
+            return "redirect:/auth/login";
         }
 
         model.addAttribute("novel", new Novel());
@@ -100,7 +105,7 @@ public class NovelController {
                             @RequestParam("imageFile") MultipartFile imageFile,
                             HttpSession session) {
         if (!isLoggedIn(session)) {
-            return "redirect:/login";
+            return "redirect:/auth/login";
         }
 
         String userId = (String) session.getAttribute("userId");
@@ -174,9 +179,14 @@ public class NovelController {
             model.addAttribute("novel", novel);
             model.addAttribute("comments", comments);
 
+            // Add this to the showNovelDetail method in NovelController.java
             if (isLoggedIn(session)) {
+
+
                 String userId = (String) session.getAttribute("userId");
-                ratingRepository.findByNovelIdAndUserId(id, userId).ifPresent(r -> model.addAttribute("userRating", r.getRating()));
+                userService.trackNovelView(userId, id);
+                boolean isInLibrary = userService.getUserLibrary(userId).contains(id);
+                model.addAttribute("isInLibrary", isInLibrary);
             }
 
             return "novel/detail";
@@ -192,7 +202,7 @@ public class NovelController {
     @PostMapping("/delete/{id}")
     public String deleteNovel(@PathVariable String id, HttpSession session) {
         if (!isLoggedIn(session)) {
-            return "return:/auth/login";
+            return "redirect:/auth/login";
         }
 
         Optional<Novel> novel = novelService.getNovelById(id);
@@ -221,28 +231,45 @@ public class NovelController {
 
         return novel.getImageData();
     }
-    @PostMapping("/{id}/comment")
-    public String postComment(@PathVariable String id,
-                              @RequestParam String content,
-                              HttpSession session) {
-        if (!isLoggedIn(session)) return "redirect:/login";
+    @Autowired
+    private CommentService commentService;
+
+    @PostMapping("/{novelId}/comments/{commentId}/reply")
+    public String addReply(@PathVariable String novelId,
+                           @PathVariable String commentId,
+                           @RequestParam String replyContent,
+                           HttpSession session) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/auth/login";
+
+        }
 
         String userId = (String) session.getAttribute("userId");
-        String username = (String) session.getAttribute("username"); // Assuming you store username in session
+        String username = (String) session.getAttribute("username");
 
-        Comment comment = new Comment();
-        comment.setNovelId(id);
-        comment.setUserId(userId);
-        comment.setUsername(username); // Set the username
-        comment.setContent(content);
-        commentRepository.save(comment);
+        commentService.addReply(commentId, userId, username, replyContent);
 
-        return "redirect:/novels/detail/" + id;
+        return "redirect:/novels/detail/" + novelId;
+    }
+
+    @PostMapping("/{novelId}/comments/{commentId}/replies/{replyId}/delete")
+    public String deleteReply(@PathVariable String novelId,
+                              @PathVariable String commentId,
+                              @PathVariable String replyId,
+                              HttpSession session) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/auth/login";
+        }
+
+        String userId = (String) session.getAttribute("userId");
+        commentService.deleteReply(commentId, replyId, userId);
+
+        return "redirect:/novels/detail/" + novelId;
     }
 
     @PostMapping("/{id}/rate")
     public String rateNovel(@PathVariable String id, @RequestParam int rating, HttpSession session) {
-        if (!isLoggedIn(session)) return "redirect:/login";
+        if (!isLoggedIn(session))   return "redirect:/auth/login";
 
         String userId = (String) session.getAttribute("userId");
 
@@ -262,5 +289,30 @@ public class NovelController {
 
         return "redirect:/novels/detail/" + id;
     }
+    @PostMapping("/{novelId}/comments")
+    public String addComment(@PathVariable String novelId,
+                             @RequestParam String commentContent,
+                             HttpSession session) {
+        if (!isLoggedIn(session)) {
+            return "redirect:/auth/login";
+        }
+
+        String userId = (String) session.getAttribute("userId");
+        String username = (String) session.getAttribute("username");
+
+        Comment comment = new Comment();
+        comment.setId(UUID.randomUUID().toString());
+        comment.setNovelId(novelId);
+        comment.setUserId(userId);
+        comment.setUsername(username);
+        comment.setContent(commentContent);
+
+        commentRepository.save(comment);
+
+        return "redirect:/novels/detail/" + novelId;
+    }
+
+
+
 
 }

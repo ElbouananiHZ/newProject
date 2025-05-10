@@ -1,41 +1,68 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${novel.name + ' | Book Details'}">Book Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4e73df;
-            --secondary-color: #858796;
-            --accent-color: #1cc88a;
-            --dark-color: #2c3e50;
-            --light-color: #f8f9fc;
-            --comment-highlight: #f0f7ff;
+            --primary-color: #5e72e4;
+            --secondary-color: #8898aa;
+            --accent-color: #2dce89;
+            --dark-color: #32325d;
+            --light-color: #f8f9fe;
+            --comment-highlight: #f6f9fc;
+            --gold-color: #ffd700;
+            --silver-color: #c0c0c0;
+            --bronze-color: #cd7f32;
         }
 
         body {
             background-color: var(--light-color);
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            line-height: 1.6;
+            font-family: 'Montserrat', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.7;
+            color: #525f7f;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Merriweather', serif;
         }
 
         .novel-container {
             max-width: 1200px;
             margin: 2rem auto;
             background: #fff;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.15);
+            border-radius: 0.75rem;
+            box-shadow: 0 0.25rem 2rem rgba(50, 50, 93, 0.1);
             overflow: hidden;
+            position: relative;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .novel-container:hover {
+            box-shadow: 0 0.5rem 3rem rgba(50, 50, 93, 0.15);
         }
 
         .novel-header {
-            background: linear-gradient(135deg, var(--primary-color), #224abe);
+            background: linear-gradient(135deg, var(--primary-color), #4a5acf);
             color: #fff;
-            padding: 2rem;
+            padding: 3rem 2rem;
             position: relative;
+            overflow: hidden;
+        }
+
+        .novel-header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
         }
 
         .novel-header::after {
@@ -44,46 +71,91 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 10px;
+            height: 8px;
             background: linear-gradient(90deg,
-            rgba(30,200,138,0.8) 0%,
-            rgba(78,115,223,0.8) 50%,
-            rgba(133,135,150,0.8) 100%);
+            var(--accent-color) 0%,
+            var(--primary-color) 50%,
+            var(--secondary-color) 100%);
+            opacity: 0.8;
         }
 
         .novel-title {
             font-weight: 700;
             margin-bottom: 0.5rem;
-            font-size: 2.5rem;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            font-size: 2.75rem;
+            text-shadow: 1px 2px 4px rgba(0,0,0,0.15);
+            position: relative;
+            display: inline-block;
+        }
+
+        .novel-title::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent-color);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s ease;
+        }
+
+        .novel-container:hover .novel-title::after {
+            transform: scaleX(1);
+            transform-origin: left;
         }
 
         .novel-meta {
             display: flex;
             gap: 1.5rem;
             color: rgba(255, 255, 255, 0.9);
+            flex-wrap: wrap;
+        }
+
+        .novel-image-container {
+            position: relative;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 1rem 2rem rgba(0,0,0,0.15);
+            transition: all 0.4s ease;
+            height: 400px;
         }
 
         .novel-image {
             width: 100%;
-            height: 400px;
+            height: 100%;
             object-fit: cover;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            transition: transform 0.5s ease;
         }
 
-        .novel-image:hover {
-            transform: scale(1.02);
+        .novel-image-container:hover {
+            box-shadow: 0 1.5rem 3rem rgba(0,0,0,0.2);
+        }
+
+        .novel-image-container:hover .novel-image {
+            transform: scale(1.05);
+        }
+
+        .novel-image-container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 30%);
+            pointer-events: none;
         }
 
         .section-title {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--dark-color);
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(94, 114, 228, 0.2);
+            padding-bottom: 0.75rem;
+            margin-bottom: 2rem;
             position: relative;
+            display: inline-block;
         }
 
         .section-title::after {
@@ -91,74 +163,108 @@
             position: absolute;
             bottom: -2px;
             left: 0;
-            width: 50px;
-            height: 3px;
+            width: 60px;
+            height: 4px;
             background: var(--accent-color);
+            border-radius: 2px;
         }
 
         .rating-display {
             display: inline-flex;
             align-items: center;
-            background: rgba(255,255,255,0.2);
-            padding: 0.5rem 1.2rem;
+            background: rgba(255,255,255,0.15);
+            padding: 0.6rem 1.5rem;
             border-radius: 2rem;
             color: #fff;
-            font-weight: 600;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 700;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .rating-display:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Star rating animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .rating-display i {
+            color: var(--gold-color);
+            animation: pulse 2s infinite;
         }
 
         /* Enhanced Comment Cards */
         .comment-card {
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
+            border-radius: 0.75rem;
+            transition: all 0.4s ease;
             border: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
             overflow: hidden;
             background-color: var(--comment-highlight);
+            position: relative;
         }
 
         .comment-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .comment-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
         }
 
         .comment-header {
             display: flex;
             align-items: center;
-            padding: 1rem 1.5rem;
-            background: rgba(78,115,223,0.1);
-            border-bottom: 1px solid rgba(78,115,223,0.1);
+            padding: 1.25rem 2rem;
+            background: rgba(94, 114, 228, 0.05);
+            border-bottom: 1px solid rgba(94, 114, 228, 0.1);
         }
 
         .comment-avatar {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), #4a5acf);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            margin-right: 1rem;
+            margin-right: 1.25rem;
             text-transform: uppercase;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 8px rgba(94, 114, 228, 0.2);
         }
 
         .comment-user {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--dark-color);
+            font-size: 1.1rem;
         }
 
         .comment-date {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--secondary-color);
             margin-left: auto;
         }
 
         .comment-body {
-            padding: 1.5rem;
+            padding: 2rem;
             position: relative;
         }
 
@@ -167,8 +273,8 @@
             position: absolute;
             top: 10px;
             left: 20px;
-            font-size: 4rem;
-            color: rgba(78,115,223,0.1);
+            font-size: 6rem;
+            color: rgba(94, 114, 228, 0.05);
             font-family: serif;
             line-height: 1;
             z-index: 0;
@@ -177,24 +283,80 @@
         .comment-content {
             position: relative;
             z-index: 1;
-            line-height: 1.7;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        /* Reply specific styles */
+        .reply-form {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: rgba(248, 249, 252, 0.9);
+            border-radius: 0.75rem;
+            border-left: 4px solid var(--secondary-color);
+            display: none;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .reply-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            border-radius: 0.5rem;
+        }
+
+        .reply-btn:hover {
+            color: #fff;
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(94, 114, 228, 0.2);
+        }
+
+        .replies-container {
+            margin-left: 3.5rem;
+            margin-top: 1.5rem;
+            border-left: 3px solid rgba(94, 114, 228, 0.15);
+            padding-left: 2rem;
+        }
+
+        .reply-card {
+            background: rgba(248, 249, 252, 0.9);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .reply-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
             transition: all 0.3s;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
         }
 
         .btn-primary:hover {
-            background-color: #3a5bc7;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(78,115,223,0.3);
+            background-color: #4a5acf;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(94, 114, 228, 0.3);
         }
 
         .form-control:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+            box-shadow: 0 0 0 0.25rem rgba(94, 114, 228, 0.25);
         }
 
         /* Floating action button */
@@ -202,44 +364,186 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: var(--accent-color);
+            background: linear-gradient(135deg, var(--accent-color), #25b87a);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 15px rgba(30,200,138,0.4);
+            font-size: 1.75rem;
+            box-shadow: 0 6px 20px rgba(45, 206, 137, 0.5);
             transition: all 0.3s;
             z-index: 100;
             border: none;
+            cursor: pointer;
         }
 
         .fab:hover {
-            transform: scale(1.1) translateY(-5px);
-            box-shadow: 0 8px 20px rgba(30,200,138,0.6);
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(45, 206, 137, 0.7);
         }
 
         /* Tag badges */
         .tag-badge {
             display: inline-block;
-            padding: 0.35em 0.65em;
-            background: rgba(133,135,150,0.1);
-            color: var(--secondary-color);
+            padding: 0.4em 0.8em;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
             border-radius: 50rem;
-            font-size: 0.75em;
+            font-size: 0.8em;
             margin-right: 0.5rem;
             margin-bottom: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+
+        .tag-badge:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Table of Contents styles */
+        .toc-item {
+            border-left: 3px solid var(--primary-color);
+            transition: all 0.3s ease;
+            margin-bottom: 0.75rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .toc-item:hover {
+            transform: translateX(5px);
+            background: rgba(94, 114, 228, 0.05);
+            border-left-width: 5px;
+        }
+
+        /* Bookmark ribbon */
+        .bookmark-ribbon {
+            position: absolute;
+            top: 0;
+            right: 2rem;
+            width: 40px;
+            height: 60px;
+            background: var(--gold-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
+            z-index: 1;w
+        }
+
+        /* Rating stars animation */
+        .rating-stars {
+            display: inline-flex;
+            direction: rtl;
+        }
+
+        .rating-stars input {
+            display: none;
+        }
+
+        .rating-stars label {
+            color: #ddd;
+            font-size: 2rem;
+            padding: 0 0.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .rating-stars input:checked ~ label,
+        .rating-stars input:hover ~ label,
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label {
+            color: var(--gold-color);
+            transform: scale(1.2);
+        }
+
+        /* Decorative elements */
+        .book-dots {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(94, 114, 228, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .book-dots-1 {
+            top: 10%;
+            left: 5%;
+        }
+
+        .book-dots-2 {
+            bottom: 15%;
+            right: 10%;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .novel-title {
+                font-size: 2rem;
+            }
+
+            .novel-header {
+                padding: 2rem 1.5rem;
+            }
+
+            .replies-container {
+                margin-left: 1.5rem;
+                padding-left: 1rem;
+            }
+        }
+
+        /* Animation for new comments */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .new-comment {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        /* Scroll progress indicator */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent-color), var(--primary-color));
+            z-index: 1000;
+            transition: width 0.1s;
         }
     </style>
 </head>
 <body>
+<!-- Scroll progress indicator -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
 <div class="container-fluid px-0">
     <div class="novel-container">
+        <!-- Decorative dots -->
+        <div class="book-dots book-dots-1"></div>
+        <div class="book-dots book-dots-2"></div>
+
         <!-- Header -->
         <header class="novel-header">
+            <!-- Bookmark ribbon -->
+
+            <div class="bookmark-ribbon">
+                <i class="bi bi-bookmark"></i>
+            </div>
+
             <div class="d-flex justify-content-between align-items-start">
                 <div>
                     <h1 class="novel-title" th:text="${novel.name}">Book Title</h1>
@@ -262,7 +566,9 @@
             <div class="row">
                 <!-- Image -->
                 <div class="col-md-4 mb-4">
-                    <img th:src="@{/novels/image/{id}(id=${novel.id})}" alt="Book cover" class="novel-image" />
+                    <div class="novel-image-container">
+                        <img th:src="@{/novels/image/{id}(id=${novel.id})}" alt="Book cover" class="novel-image" />
+                    </div>
                 </div>
 
                 <!-- Details -->
@@ -277,19 +583,22 @@
                     <section class="mb-5">
                         <h3 class="section-title">Rate This Book</h3>
                         <form th:action="@{/novels/{id}/rate(id=${novel.id})}" method="post" class="row g-3 align-items-center">
-                            <div class="col-md-4">
-                                <label for="rating" class="form-label">Your Rating (1-5)</label>
-                                <select name="rating" id="rating" class="form-select" required>
-                                    <option value="">Select rating</option>
-                                    <option value="1">1 - Poor</option>
-                                    <option value="2">2 - Fair</option>
-                                    <option value="3">3 - Good</option>
-                                    <option value="4">4 - Very Good</option>
-                                    <option value="5">5 - Excellent</option>
-                                </select>
+                            <div class="col-md-6">
+                                <div class="rating-stars">
+                                    <input type="radio" id="star5" name="rating" value="5" />
+                                    <label for="star5" title="Excellent"><i class="bi bi-star-fill"></i></label>
+                                    <input type="radio" id="star4" name="rating" value="4" />
+                                    <label for="star4" title="Very Good"><i class="bi bi-star-fill"></i></label>
+                                    <input type="radio" id="star3" name="rating" value="3" />
+                                    <label for="star3" title="Good"><i class="bi bi-star-fill"></i></label>
+                                    <input type="radio" id="star2" name="rating" value="2" />
+                                    <label for="star2" title="Fair"><i class="bi bi-star-fill"></i></label>
+                                    <input type="radio" id="star1" name="rating" value="1" />
+                                    <label for="star1" title="Poor"><i class="bi bi-star-fill"></i></label>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-primary mt-md-4">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-star-fill"></i> Submit Rating
                                 </button>
                             </div>
@@ -309,7 +618,7 @@
                 <div class="list-group">
                     <a th:each="page : ${novel.pages}"
                        th:href="@{/novels/{novelId}/pages/{pageNumber}(novelId=${novel.id}, pageNumber=${page.pageNumber})}"
-                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                       class="list-group-item list-group-item-action toc-item d-flex justify-content-between align-items-center">
                         <span>
                             <span th:text="${page.pageNumber}">1</span>.
                             <span th:text="${page.name} ?: ('Page ' + ${page.pageNumber})">Page Title</span>
@@ -320,7 +629,7 @@
             </section>
 
             <!-- Enhanced Reader Comments Section -->
-            <section class="mb-5">
+            <section class="comment-section">
                 <h3 class="section-title">
                     <i class="bi bi-chat-square-text"></i> Reader Comments
                     <small class="text-muted fs-6" th:text="'(' + ${#lists.size(comments)} + ')'"></small>
@@ -330,8 +639,36 @@
                     <i class="bi bi-info-circle"></i> No comments yet. Be the first to share your thoughts!
                 </div>
 
-                <!-- Enhanced Comment Cards -->
-                <div th:each="comment : ${comments}" class="comment-card">
+                <!-- New Comment Form -->
+                <div class="comment-form-container mb-5 p-4 bg-light rounded">
+                    <h5 class="mb-3"><i class="bi bi-pencil"></i> Add your comment</h5>
+                    <form class="comment-form" th:action="@{/novels/{novelId}/comments(novelId=${novel.id})}" method="post">
+                        <div class="mb-3">
+                            <textarea name="commentContent" class="form-control" rows="4"
+                                      placeholder="Share your thoughts about this novel..." required
+                                      style="border-radius: 0.5rem; border: 2px solid rgba(94, 114, 228, 0.2);"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send-fill"></i> Post Comment
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Comment List -->
+                <div th:each="comment, stat : ${comments}" class="comment-card" th:classappend="${stat.first} ? 'new-comment' : ''">
+                    <!-- Award badges for top comments -->
+                    <div th:if="${stat.index < 3}" class="position-absolute top-0 end-0 mt-2 me-2">
+                        <span th:if="${stat.index == 0}" class="badge bg-warning text-dark p-2">
+                            <i class="bi bi-trophy-fill"></i> Top Comment
+                        </span>
+                        <span th:if="${stat.index == 1}" class="badge bg-secondary p-2">
+                            <i class="bi bi-award-fill"></i> Popular
+                        </span>
+                        <span th:if="${stat.index == 2}" class="badge bg-danger p-2">
+                            <i class="bi bi-heart-fill"></i> Liked
+                        </span>
+                    </div>
+
                     <div class="comment-header">
                         <div class="comment-avatar" th:text="${#strings.substring(comment.username, 0, 1)}">U</div>
                         <div class="comment-user" th:text="${comment.username}">Username</div>
@@ -341,31 +678,61 @@
                     </div>
                     <div class="comment-body">
                         <div class="comment-content" th:text="${comment.content}">
-                            This is a sample comment about the book. The content goes here and can be multiple lines long.
+                            This is a sample comment about the book.
+                        </div>
+
+                        <!-- Reply button and form -->
+                        <button class="reply-btn mt-3" onclick="toggleReplyForm(this)">
+                            <i class="bi bi-reply-fill"></i> Reply
+                        </button>
+
+                        <div class="reply-form">
+                            <form th:action="@{/novels/{novelId}/comments/{commentId}/reply(novelId=${novel.id}, commentId=${comment.id})}"
+                                  method="post">
+                                <div class="mb-3">
+                                    <textarea name="replyContent" class="form-control" rows="3"
+                                              placeholder="Write your reply..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary">Post Reply</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
+                                        onclick="toggleReplyForm(this)">Cancel</button>
+                            </form>
+                        </div>
+
+                        <!-- Replies section -->
+                        <div th:if="${not #lists.isEmpty(comment.replies)}" class="replies-container">
+                            <div th:each="reply : ${comment.replies}" class="reply-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comment-avatar me-2" style="width: 32px; height: 32px; font-size: 0.9rem;"
+                                             th:text="${#strings.substring(reply.username, 0, 1)}">U</div>
+                                        <div class="comment-user" style="font-size: 0.95rem;" th:text="${reply.username}">Username</div>
+                                    </div>
+                                    <div class="comment-date" style="font-size: 0.75rem;"
+                                         th:text="${#temporals.format(reply.createdAt, 'MMM dd • HH:mm')}">Jun 15 • 14:30</div>
+                                </div>
+                                <div style="font-size: 0.95rem;" th:text="${reply.content}">Sample reply content.</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Add Comment Section -->
-                <div class="mt-5 p-4 rounded" style="background-color: rgba(78,115,223,0.05); border: 1px dashed rgba(78,115,223,0.3);">
-                    <h4 class="h5 mb-3 d-flex align-items-center">
-                        <i class="bi bi-pencil-square me-2"></i> Share Your Thoughts
-                    </h4>
-                    <form th:action="@{/novels/{id}/comment(id=${novel.id})}" method="post">
-                        <div class="mb-3">
-                            <textarea name="content" class="form-control" rows="4"
-                                      placeholder="What did you think about this book? Share your review..."
-                                      style="min-height: 100px; resize: none;" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-send-fill me-2"></i> Post Comment
+                <!-- In your detail.html -->
+                <div sec:authorize="isAuthenticated()">
+                    <form th:action="@{'/library/add/' + ${novel.id}}" method="post" th:unless="${isInLibrary}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-bookmark-plus"></i> Ajouter à ma bibliothèque
+                        </button>
+                    </form>
+                    <form th:action="@{'/library/remove/' + ${novel.id}}" method="post" th:if="${isInLibrary}">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-bookmark-dash"></i> Retirer de ma bibliothèque
                         </button>
                     </form>
                 </div>
             </section>
 
             <!-- Footer Buttons -->
-            <footer class="d-flex justify-content-between border-top pt-4">
+            <footer class="d-flex justify-content-between border-top pt-4 mt-5">
                 <a th:href="@{/novels}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i> Back to Library
                 </a>
@@ -393,6 +760,51 @@
 <a th:href="@{/novels/{novelId}/pages/1(novelId=${novel.id})}" class="fab" title="Start Reading">
     <i class="bi bi-book"></i>
 </a>
+
+<script>
+    // Toggle reply form visibility
+    function toggleReplyForm(button) {
+        const form = button.closest('.comment-body').querySelector('.reply-form');
+        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+
+        // Scroll to the form if opening
+        if (form.style.display === 'block') {
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    // Scroll progress indicator
+    window.addEventListener('scroll', function() {
+        const scrollProgress = document.getElementById('scrollProgress');
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrollPercentage = (scrollTop / scrollHeight) * 100;
+        scrollProgress.style.width = scrollPercentage + '%';
+    });
+
+    // Add animation to new comments when added
+    function observeNewComments() {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1 && node.classList.contains('comment-card')) {
+                        node.classList.add('new-comment');
+                    }
+                });
+            });
+        });
+
+        const commentSection = document.querySelector('.comment-section');
+        if (commentSection) {
+            observer.observe(commentSection, { childList: true });
+        }
+    }
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        observeNewComments();
+    });
+</script>
 
 </body>
 </html>

@@ -1,1 +1,197 @@
-<a href="/novels" class="btn btn-primary me-3">Voir tous les romans</a>
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon Profil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #dee2e6;
+            cursor: pointer;
+        }
+        .avatar-container {
+            position: relative;
+            width: fit-content;
+            margin: 0 auto 1.5rem;
+        }
+        .avatar-edit {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: white;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .avatar-actions {
+            display: none;
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 20px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .avatar-container:hover .avatar-actions {
+            display: flex;
+        }
+        .quick-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .quick-actions .btn {
+            min-width: 150px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="/">ReadFind</a>
+        <div class="d-flex">
+            <a href="/novels" class="btn btn-outline-primary me-2">Romans</a>
+            <a href="/library" class="btn btn-outline-primary me-2">
+                <i class="bi bi-bookmark-heart"></i> Bibliothèque
+            </a>
+            <a href="/history" class="btn btn-outline-primary me-2">
+                <i class="bi bi-clock-history"></i> Historique
+            </a>
+            <a href="/profile" class="btn btn-primary">
+                <i class="bi bi-person"></i> Mon Profil
+            </a>
+            <form action="/auth/logout" method="post" class="ms-2">
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-box-arrow-right"></i> Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="profile-container">
+        <!-- Profile Picture -->
+        <div class="avatar-container">
+            <img th:if="${hasProfilePicture}"
+                 th:src="@{'/profile/picture'}"
+                 class="profile-avatar"
+                 id="profileAvatar">
+            <div th:unless="${hasProfilePicture}"
+                 class="profile-avatar d-flex align-items-center justify-content-center bg-light text-secondary"
+                 id="defaultAvatar">
+                <i class="bi bi-person" style="font-size: 3rem;"></i>
+            </div>
+            <div class="avatar-actions">
+                <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                    <i class="bi bi-upload"></i>
+                </button>
+                <form th:action="@{/profile/remove-picture}" method="post" class="ms-1">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- Profile Info -->
+        <div class="mb-4">
+            <h3 class="text-center" th:text="${username}"></h3>
+            <p class="text-center text-muted" th:text="${email}"></p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="/library" class="btn btn-outline-primary">
+                <i class="bi bi-bookmark-heart"></i> Ma Bibliothèque
+            </a>
+            <a href="/history" class="btn btn-outline-primary">
+                <i class="bi bi-clock-history"></i> Mon Historique
+            </a>
+        </div>
+
+        <!-- Username Change Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Changer de nom d'utilisateur</h5>
+                <form th:action="@{/profile/update-username}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Nouveau nom d'utilisateur</label>
+                        <input type="text" class="form-control" name="newUsername" required
+                               th:disabled="${daysRemaining > 0}">
+                    </div>
+                    <button type="submit" class="btn btn-primary" th:disabled="${daysRemaining > 0}">
+                        <i class="bi bi-check-circle"></i> Mettre à jour
+                    </button>
+                    <small class="text-muted d-block mt-2" th:if="${daysRemaining > 0}">
+                        Prochain changement possible dans <span th:text="${daysRemaining}"></span> jours
+                    </small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Changer la photo de profil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/profile/update-picture}" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="profilePicture" class="form-label">Sélectionner une image</label>
+                        <input class="form-control" type="file" id="profilePicture" name="profilePicture" accept="image/*" required>
+                        <div class="form-text">Formats supportés: JPG, PNG. Taille max: 2MB</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Preview image before upload
+    document.getElementById('profilePicture').addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profileAvatar').src = e.target.result;
+                document.getElementById('defaultAvatar').style.display = 'none';
+                document.getElementById('profileAvatar').style.display = 'block';
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>
+</body>
+</html>

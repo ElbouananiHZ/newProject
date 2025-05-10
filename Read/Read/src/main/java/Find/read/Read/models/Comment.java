@@ -1,11 +1,11 @@
 package Find.read.Read.models;
 
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "comments")
 public class Comment {
@@ -16,19 +16,26 @@ public class Comment {
     private String username;
     private String content;
     private LocalDateTime createdAt = LocalDateTime.now();
-    public String getUsername() {
-        return username;
-    }
+    private List<Reply> replies = new ArrayList<>();
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public static class Reply {
+        private String replyId;
+        private String userId;
+        private String username;
+        private String content;
+        private LocalDateTime createdAt = LocalDateTime.now();
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+        // Getters and setters
+        public String getReplyId() { return replyId; }
+        public void setReplyId(String replyId) { this.replyId = replyId; }
+        public String getUserId() { return userId; }
+        public void setUserId(String userId) { this.userId = userId; }
+        public String getUsername() { return username; }
+        public void setUsername(String username) { this.username = username; }
+        public String getContent() { return content; }
+        public void setContent(String content) { this.content = content; }
+        public LocalDateTime getCreatedAt() { return createdAt; }
+        public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     }
 
     public String getId() {
@@ -55,6 +62,14 @@ public class Comment {
         this.userId = userId;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public String getContent() {
         return content;
     }
@@ -63,6 +78,21 @@ public class Comment {
         this.content = content;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
+    // Existing getters and setters...
+
+    public List<Reply> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(List<Reply> replies) {
+        this.replies = replies;
+    }
 }

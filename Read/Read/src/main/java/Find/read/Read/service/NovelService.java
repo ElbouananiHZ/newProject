@@ -4,17 +4,22 @@ package Find.read.Read.service;
 import Find.read.Read.models.Novel;
 import Find.read.Read.models.Page;
 import Find.read.Read.models.Rating;
+import Find.read.Read.models.User;
 import Find.read.Read.repository.NovelRepository;
 import Find.read.Read.repository.PageRepository;
 import Find.read.Read.repository.RatingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import Find.read.Read.repository.UserRepository;
 
 import java.util.*;
 
 @Service
 public class NovelService {
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired
     private RatingRepository ratingRepository;
     private final NovelRepository novelRepository;
@@ -112,5 +117,11 @@ public class NovelService {
 
         novelRepository.save(novel);
     }
+
+    // In NovelService.java
+    public List<Novel> getNovelsByIds(List<String> novelIds) {
+        return novelRepository.findAllById(novelIds);
+    }
+
 
 }

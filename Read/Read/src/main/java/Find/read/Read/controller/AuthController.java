@@ -72,7 +72,7 @@ public class AuthController {
             cookie.setMaxAge(86400);  // 1 day
             response.addCookie(cookie);
 
-            return "return:/auth/login";  // Redirect to home page after successful signup
+            return "redirect:/auth/login";  // Redirect to home page after successful signup
         } catch (Exception e) {
             model.addAttribute("error", "Registration failed: " + e.getMessage());
             return "signup";
@@ -94,6 +94,7 @@ public class AuthController {
         Optional<User> userOpt = userService.findByEmail(email);
         if (userOpt.isEmpty() || !userService.checkPassword(password, userOpt.get().getPassword())) {
             model.addAttribute("error", "Invalid email or password");
+            model.addAttribute("isAuthenticated", true);
             return "login";
         }
 
@@ -115,7 +116,18 @@ public class AuthController {
 
         return "redirect:/novels";
     }
-
-
-
+    @GetMapping("/auth/logout")
+    public String logout(HttpServletResponse response, HttpSession session) {
+        session.invalidate();
+        Cookie cookie = new Cookie("jwtToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:/novels";
+    }
 }
+
+
+
+

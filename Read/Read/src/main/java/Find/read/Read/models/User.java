@@ -3,7 +3,12 @@ package Find.read.Read.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Document(collection = "users")
 public class User {
@@ -16,16 +21,80 @@ public class User {
     private String role; // "ADMIN", "AUTHOR", or "VISITOR"
     private List<Comment> comments;
     // Constructors
-
+    private LocalDate lastUsernameChangeDate;
+    private LocalDate registrationDate;
     private byte[] profilePicture;
+    private Set<String> myLibrary = new HashSet<>();
 
+    private Set<String> viewedNovels = new LinkedHashSet<>();// Maintains insertion order
+    private LocalDateTime lastViewedDate;
+
+
+    // Getters and Setters
+    public Set<String> getViewedNovels() {
+        return viewedNovels;
+    }
+
+    public void setViewedNovels(Set<String> viewedNovels) {
+        this.viewedNovels = viewedNovels;
+    }
+
+    public LocalDateTime getLastViewedDate() {
+        return lastViewedDate;
+    }
+
+    public void setLastViewedDate(LocalDateTime lastViewedDate) {
+        this.lastViewedDate = lastViewedDate;
+    }
+
+    public void addViewedNovel(String novelId) {
+        this.viewedNovels.add(novelId);
+        this.lastViewedDate = LocalDateTime.now();
+    }
+
+
+
+    public Set<String> getMyLibrary() {
+        return myLibrary;
+    }
+
+    public void setMyLibrary(Set<String> myLibrary) {
+        this.myLibrary = myLibrary;
+    }
+
+    public void addNovelToLibrary(String novelId) {
+        this.myLibrary.add(novelId);
+    }
+
+    public void removeNovelFromLibrary(String novelId) {
+        this.myLibrary.remove(novelId);
+    }
     public byte[] getProfilePicture() {
         return profilePicture;
+    }
+
+    public LocalDate getLastUsernameChangeDate() {
+        return lastUsernameChangeDate;
     }
 
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
     }
+    public LocalDate getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+
+    public void setLastUsernameChangeDate(LocalDate lastUsernameChangeDate) {
+        this.lastUsernameChangeDate = lastUsernameChangeDate;
+    }
+
+
+
 
     // Constructors, getters, and setters
     public User() {

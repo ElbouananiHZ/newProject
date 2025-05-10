@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/auth/logout")
+                        .logoutSuccessUrl("/novels")
                         .logoutSuccessUrl("/auth/login")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID", "jwtToken")
@@ -50,5 +50,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
 }
 
