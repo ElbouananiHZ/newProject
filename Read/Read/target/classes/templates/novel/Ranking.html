@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Novel Rankings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #343a40;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            font-weight: 600;
+        }
+
+        .table {
+            margin-top: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead th {
+            background-color: #6c757d;
+            color: white;
+            font-weight: 500;
+            border: none;
+            padding: 15px;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f3f5;
+            transform: translateX(5px);
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+            padding: 12px 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .img-thumbnail {
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .img-thumbnail:hover {
+            transform: scale(1.05);
+        }
+
+        a {
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: #0b5ed7;
+            text-decoration: underline;
+        }
+
+        .rating {
+            font-weight: 600;
+            color: #fd7e14;
+        }
+
+        .votes {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table, .table tbody, .table tr, .table td {
+                display: block;
+                width: 100%;
+            }
+
+            .table tr {
+                margin-bottom: 15px;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                padding: 10px;
+            }
+
+            .table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border-top: 1px solid #dee2e6;
+            }
+
+            .table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: calc(50% - 15px);
+                padding-right: 15px;
+                font-weight: 600;
+                text-align: left;
+                color: #495057;
+            }
+
+            .table td:first-child {
+                border-top: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <div class="action-buttons">
+        <a href="/" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
+
+        <div sec:authorize="isAuthenticated()">
+            <a href="/profile" class="btn btn-primary">
+                <i class="bi bi-person-circle"></i> My Profile
+            </a>
+        </div>
+    </div>
+
+    <h1>Novel Rankings</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Cover</th>
+            <th>Title</th>
+            <th>Rating</th>
+            <th>Votes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="novel,iterStat : ${novels}">
+            <td th:text="${iterStat.index + 1}">1</td>
+            <td>
+                <img th:if="${novel.imageData != null}"
+                     th:src="@{/novels/image/{id}(id=${novel.id})}"
+                     width="50" height="75" class="img-thumbnail">
+            </td>
+            <td>
+                <a th:href="@{/novels/detail/{id}(id=${novel.id})}"
+                   th:text="${novel.Name}">Novel Title</a>
+            </td>
+            <td>
+                <span class="rating" th:text="${novel.averageRating != null} ? ${#numbers.formatDecimal(novel.averageRating, 1, 1)} : 'N/A'"></span>
+            </td>
+            <td class="votes" th:text="${novel.ratingCount}">0</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

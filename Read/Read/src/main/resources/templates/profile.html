@@ -2,85 +2,168 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Modern CDN imports -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #f8f9fa;
+            --dark-color: #1e293b;
+            --light-color: #f1f5f9;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            background-color: var(--light-color);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
         .profile-container {
-            max-width: 600px;
+            max-width: 640px;
             margin: 2rem auto;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             background-color: white;
         }
+
         .profile-avatar {
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #dee2e6;
+            border: 4px solid var(--secondary-color);
             cursor: pointer;
+            transition: all 0.3s ease;
         }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
         .avatar-container {
             position: relative;
             width: fit-content;
-            margin: 0 auto 1.5rem;
+            margin: 0 auto 2rem;
         }
+
         .avatar-edit {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
+            bottom: 12px;
+            right: 12px;
             background: white;
             border-radius: 50%;
-            padding: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 6px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
         }
-        .avatar-actions {
-            display: none;
-            position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            border-radius: 20px;
-            padding: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+        .avatar-edit:hover {
+            transform: scale(1.1);
+            background: var(--primary-color);
+            color: white;
         }
-        .avatar-container:hover .avatar-actions {
-            display: flex;
-        }
+
         .quick-actions {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
+
         .quick-actions .btn {
-            min-width: 150px;
+            min-width: 160px;
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .navbar {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .quick-actions .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
     <div class="container">
-        <a class="navbar-brand" href="/">ReadFind</a>
-        <div class="d-flex">
-            <a href="/novels" class="btn btn-outline-primary me-2">Romans</a>
-            <a href="/library" class="btn btn-outline-primary me-2">
-                <i class="bi bi-bookmark-heart"></i> Bibliothèque
-            </a>
-            <a href="/history" class="btn btn-outline-primary me-2">
-                <i class="bi bi-clock-history"></i> Historique
-            </a>
-            <a href="/profile" class="btn btn-primary">
-                <i class="bi bi-person"></i> Mon Profil
-            </a>
-            <form action="/auth/logout" method="post" class="ms-2">
-                <button type="submit" class="btn btn-outline-danger">
-                    <i class="bi bi-box-arrow-right"></i> Déconnexion
-                </button>
-            </form>
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="bi bi-book me-2"></i>
+            <span>ReadFind</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/novels">
+                        <i class="bi bi-book me-1"></i> Romans
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/library">
+                        <i class="bi bi-bookmark-heart me-1"></i> Bibliothèque
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/history">
+                        <i class="bi bi-clock-history me-1"></i> Historique
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${session.userId != null}">
+                    <a class="nav-link" th:href="@{/novels/my-novels}">
+                        <i class="bi bi-journal-text me-1"></i> Mes Romans
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/profile">
+                        <i class="bi bi-person me-1"></i> Profil
+                    </a>
+                </li>
+
+            </ul>
         </div>
     </div>
 </nav>
@@ -96,54 +179,60 @@
             <div th:unless="${hasProfilePicture}"
                  class="profile-avatar d-flex align-items-center justify-content-center bg-light text-secondary"
                  id="defaultAvatar">
-                <i class="bi bi-person" style="font-size: 3rem;"></i>
+                <i class="bi bi-person" style="font-size: 3.5rem;"></i>
             </div>
-            <div class="avatar-actions">
-                <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                    <i class="bi bi-upload"></i>
-                </button>
-                <form th:action="@{/profile/remove-picture}" method="post" class="ms-1">
-                    <button type="submit" class="btn btn-sm btn-danger">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </form>
-            </div>
+            <button class="avatar-edit" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                <i class="bi bi-pencil"></i>
+            </button>
         </div>
 
         <!-- Messages -->
-        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
         <!-- Profile Info -->
-        <div class="mb-4">
-            <h3 class="text-center" th:text="${username}"></h3>
-            <p class="text-center text-muted" th:text="${email}"></p>
+        <div class="text-center mb-4">
+            <h2 class="fw-bold" th:text="${username}"></h2>
+            <p class="text-muted" th:text="${email}"></p>
         </div>
 
         <!-- Quick Actions -->
         <div class="quick-actions">
             <a href="/library" class="btn btn-outline-primary">
-                <i class="bi bi-bookmark-heart"></i> Ma Bibliothèque
+                <i class="bi bi-bookmark-heart me-1"></i> Bibliothèque
             </a>
             <a href="/history" class="btn btn-outline-primary">
-                <i class="bi bi-clock-history"></i> Mon Historique
+                <i class="bi bi-clock-history me-1"></i> Historique
+            </a>
+            <a th:href="@{/novels/my-novels}" class="btn btn-outline-primary">
+                <i class="bi bi-journal-text me-1"></i> Mes Romans
+            </a>
+            <a href="/novels/new" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Nouveau Roman
             </a>
         </div>
 
         <!-- Username Change Form -->
-        <div class="card mb-4">
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <h5 class="card-title">Changer de nom d'utilisateur</h5>
+                <h5 class="card-title fw-bold mb-3">Modifier le profil</h5>
                 <form th:action="@{/profile/update-username}" method="post">
                     <div class="mb-3">
-                        <label class="form-label">Nouveau nom d'utilisateur</label>
-                        <input type="text" class="form-control" name="newUsername" required
+                        <label class="form-label fw-medium">Nom d'utilisateur</label>
+                        <input type="text" class="form-control rounded-pill" name="newUsername" required
                                th:disabled="${daysRemaining > 0}">
                     </div>
-                    <button type="submit" class="btn btn-primary" th:disabled="${daysRemaining > 0}">
-                        <i class="bi bi-check-circle"></i> Mettre à jour
+                    <button type="submit" class="btn btn-primary rounded-pill w-100 py-2"
+                            th:disabled="${daysRemaining > 0}">
+                        <i class="bi bi-check-circle me-1"></i> Enregistrer
                     </button>
-                    <small class="text-muted d-block mt-2" th:if="${daysRemaining > 0}">
+                    <small class="text-muted d-block mt-2 text-center" th:if="${daysRemaining > 0}">
                         Prochain changement possible dans <span th:text="${daysRemaining}"></span> jours
                     </small>
                 </form>
@@ -154,44 +243,67 @@
 
 <!-- Upload Modal -->
 <div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Changer la photo de profil</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Changer la photo de profil</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form th:action="@{/profile/update-picture}" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="profilePicture" class="form-label">Sélectionner une image</label>
-                        <input class="form-control" type="file" id="profilePicture" name="profilePicture" accept="image/*" required>
-                        <div class="form-text">Formats supportés: JPG, PNG. Taille max: 2MB</div>
+                        <label for="profilePicture" class="form-label fw-medium">Sélectionner une image</label>
+                        <input class="form-control" type="file" id="profilePicture" name="profilePicture"
+                               accept="image/*" required>
+                        <div class="form-text">Formats supportés: JPG, PNG, WEBP. Taille max: 5MB</div>
+                    </div>
+                    <div class="ratio ratio-1x1 mb-3 bg-light rounded-3 overflow-hidden" id="imagePreviewContainer">
+                        <div class="d-flex align-items-center justify-content-center text-muted" id="defaultPreview">
+                            <i class="bi bi-image" style="font-size: 3rem;"></i>
+                        </div>
+                        <img id="imagePreview" class="img-fluid object-fit-cover" style="display: none;">
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary rounded-pill">Enregistrer</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Preview image before upload
-    document.getElementById('profilePicture').addEventListener('change', function(e) {
-        if (this.files && this.files[0]) {
+<!-- Modern JavaScript -->
+<script type="module">
+    // Image preview functionality
+    const profilePictureInput = document.getElementById('profilePicture');
+    const imagePreview = document.getElementById('imagePreview');
+    const defaultPreview = document.getElementById('defaultPreview');
+
+    profilePictureInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('profileAvatar').src = e.target.result;
-                document.getElementById('defaultAvatar').style.display = 'none';
-                document.getElementById('profileAvatar').style.display = 'block';
-            }
-            reader.readAsDataURL(this.files[0]);
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                defaultPreview.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
         }
     });
+
+    // Close alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
 </script>
+
+<!-- Bootstrap JS with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

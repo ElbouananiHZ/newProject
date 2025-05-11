@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -61,17 +62,8 @@ public class NovelController {
         return "unauthorized";
     }
 
-    @GetMapping("/my-novels")
-    public String showUserNovels(Model model, HttpSession session) {
-        if (!isLoggedIn(session)) {
-            return "redirect:/auth/login";
-        }
 
-        String userId = (String) session.getAttribute("userId");
-        List<Novel> userNovels = novelService.getNovelsByAuthorId(userId);
-        model.addAttribute("novels", userNovels);
-        return "novel/my-novels"; // New template for user's novels
-    }
+
 
     @GetMapping("/{id}")
     public String showNovel(@PathVariable String id, Model model) {
@@ -313,6 +305,46 @@ public class NovelController {
     }
 
 
+    @GetMapping("/ranking")
+    public String listNovelsByRank(Model model) {
+        try {
+            List<Novel> novels = novelService.getNovelsOrderedByRating();
+            model.addAttribute("novels", novels);
+            return "novel/Ranking";
+        } catch (Exception e) {
+            logger.error("Error loading ranking", e);
+            model.addAttribute("error", "Could not load rankings");
+            return "error";
+        }
+    }
+    @GetMapping("/search")
+    @ResponseBody
+    public ResponseEntity<List<Novel>> searchNovels(@RequestParam String query) {
+        List<Novel> results = novelService.searchNovels(query);
+        return ResponseEntity.ok(results);
+    }
 
+    @GetMapping("/search-page")
+    public String searchPage(@RequestParam String query, Model model) {
+        List<Novel> results = novelService.searchNovels(query);
+        model.addAttribute("novels", results);
+        model.addAttribute("searchQuery", query);
+        return "novel/list"; // Make sure this matches your template name
+    }
+    @GetMapping("/my-novels")
+    public String showUserNovels(Model model, HttpSession session) {
+        if (!isLoggedIn(session)) {
+            logger.error("User not logged in - redirecting to login");
+            return "redirect:/auth/login";
+        }
 
+        String userId = (String) session.getAttribute("userId");
+        logger.info("Fetching novels for user ID: {}", userId);
+
+        List<Novel> userNovels = novelService.getNovelsByAuthorId(userId);
+        logger.info("Found {} novels for user {}", userNovels.size(), userId);
+
+        model.addAttribute("novels", userNovels);
+        return "novel/my-novels";
+    }
 }

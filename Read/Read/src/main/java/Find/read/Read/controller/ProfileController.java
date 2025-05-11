@@ -47,6 +47,7 @@ public class ProfileController {
             model.addAttribute("daysRemaining", 0);
         }
 
+
         return "profile";
     }
 

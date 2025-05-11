@@ -3,6 +3,7 @@ package Find.read.Read.models;
 import Find.read.Read.enums.NovelCategory;
 import Find.read.Read.enums.NovelTag;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Document(collection = "novels")
+@CompoundIndex(def = "{'name': 'text', 'category': 'text', 'description': 'text'}")
 public class Novel {
     @Id
     private String id;
